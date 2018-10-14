@@ -1010,7 +1010,7 @@ void BASE::WriteToFile_MPI(MPI_Comm new_comm)
 
 
 void BASE::Read_input_parameters(int *integers, double *rationals)
-     {
+{
        //int value(0);
        FILE* file;
        char Data[MAX_LINE_LENGTH], *string;
@@ -1692,7 +1692,7 @@ void BASE::SendColloids(std::list<BODY> &bodies1, MPI_Comm new_comm)
 //printf("final  list size in SendC=%d\n",length2);
 
 for(int i=0;i<size;i++)
-   {
+{
        //printf("Rank=%d, counter[%d]=%d\n", my2drank,counter[i]);
        int amount=counter[i];
        //printf("Amount=%d\n",amount);
