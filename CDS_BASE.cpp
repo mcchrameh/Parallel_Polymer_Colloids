@@ -29,66 +29,62 @@
 
 
 BASE::BASE()
-     {
-      MPI_Comm_rank(MPI_COMM_WORLD,&rank);
-      MPI_Comm_size(MPI_COMM_WORLD, &size);      
-       double rationals[26];
-       int integers[8];
-       if(rank==0)
-	  {
-	    Read_input_parameters(integers, rationals);
-	   }
-       MPI_Bcast(integers,8,MPI_INT,0,MPI_COMM_WORLD);
-       MPI_Bcast(rationals,26,MPI_DOUBLE,0,MPI_COMM_WORLD);
-       Nx   = integers[0];     Ny    = integers[1]; //Nz=integers[2];
-       Procx=integers[2];      Procy = integers[3]; //Procz =integers[5];
-       Nbig =integers[4];      Nsmall= integers[5];
-       Nparticles=integers[6];
-       M = rationals[0]; u=rationals[1]; B = rationals[2];
-       D = rationals[3]; A=rationals[4]; v = rationals[5];
-       tau= rationals[6]; F=rationals[7]; r=rationals[8];
-       Max_time_iteration=rationals[9];
-       U1=rationals[10]; CSI=rationals[11];
-       ENNE=rationals[12];      ALPHA =rationals[13];
-       beta =rationals[14];     GAMMs =rationals[15];
-       GAMMb =rationals[16];    temp1 =rationals[17];
-       R1small=rationals[18];   R1big =rationals[19];
-       ALP1 =rationals[20];     dxx   =rationals[21];
-       EMME =rationals[22];     sigma =rationals[23];
-       P00s =rationals[24];     P00b  =rationals[25];
-       //B2 =rationals[26]; 
-
-        delta_t=0.01; 
-       //Nbig = integers[4];
-       //Nparticles=integers[5];
-       RR1small= R1small*pow((1.0 +(1.0/log(2.0))),(1.0/ALP1));
-       RR1big=R1big*pow((1.0 +(1.0/log(2.0))),(1.0/ALP1));
-       RCUT = RR1big; //<---This is arbitrary
-       /*--Compute the number of cells for linked cell lists---*/
-       nc1=new int[2];
-       L  =new double[2];
-       Num_cell_x= (int)floor(Nx/RCUT);
-       Num_cell_y= (int)floor(Ny/RCUT);
-
-       
-
-      int coords[2], dims[2], periods[2];
-
-      MPI_Comm new_comm =CreatCartesianTopology();
-      MPI_Comm_rank(new_comm,&my2drank);
-      MPI_Cart_get(new_comm,2,dims,periods,coords);
-      assert(Procx*Procy==size);
-      printf("dimensions of topology=(%d,%d)\n",dims[0],dims[1]);
-      
-      if(Nx%Procx!=0)
+{
+	MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+	MPI_Comm_size(MPI_COMM_WORLD, &size);      
+	double rationals[26];
+	int integers[8];
+	if(rank==0)
 	{
-         if(coords[0]<(dims[0]-1))
+		Read_input_parameters(integers, rationals);
+	}
+   MPI_Bcast(integers,8,MPI_INT,0,MPI_COMM_WORLD);
+   MPI_Bcast(rationals,26,MPI_DOUBLE,0,MPI_COMM_WORLD);
+   Nx   = integers[0];     Ny    = integers[1]; //Nz=integers[2];
+   Procx=integers[2];      Procy = integers[3]; //Procz =integers[5];
+   Nbig =integers[4];      Nsmall= integers[5];
+   Nparticles=integers[6];
+   M = rationals[0]; u = rationals[1]; B = rationals[2];
+   D = rationals[3]; A = rationals[4]; v = rationals[5];
+   tau = rationals[6]; F = rationals[7]; r = rationals[8];
+   Max_time_iteration=rationals[9];
+   U1 = rationals[10]; CSI = rationals[11];
+   ENNE = rationals[12];      ALPHA = rationals[13];
+   beta = rationals[14];     GAMMs = rationals[15];
+   GAMMb = rationals[16];    temp1 = rationals[17];
+   R1small = rationals[18];   R1big = rationals[19];
+   ALP1 = rationals[20];     dxx   = rationals[21];
+   EMME = rationals[22];     sigma = rationals[23];
+   P00s = rationals[24];     P00b  = rationals[25];
+   //B2 =rationals[26]; 
+	delta_t=0.01; 
+   //Nbig = integers[4];
+   //Nparticles=integers[5];
+   RR1small = R1small * pow((1.0 + (1.0 / log( 2.0 ) ) ) ,(1.0 / ALP1));
+   RR1big   = R1big * pow((1.0 + (1.0 / log(2.0))), (1.0/ALP1));
+   RCUT = RR1big; //<---This is arbitrary
+   /*--Compute the number of cells for linked cell lists---*/
+   nc1 = new int[2];
+   L   = new double[2];
+   Num_cell_x = (int)floor(Nx / RCUT);
+   Num_cell_y = (int)floor(Ny / RCUT);
+	int coords[2], dims[2], periods[2];
+
+      MPI_Comm new_comm = CreatCartesianTopology();
+      MPI_Comm_rank(new_comm, &my2drank);
+      MPI_Cart_get(new_comm, 2, dims, periods, coords);
+      assert(Procx*Procy == size);
+      printf("dimensions of topology = (%d, %d)\n",dims[0], dims[1]);
+      
+      if(Nx % Procx != 0)
+	{
+         if(coords[0] < (dims[0] - 1 ))
            {
-             nlocalx=(int)Nx/Procx;
+             nlocalx=(int)Nx / Procx;
 	   }
 	 else
           {
-            nlocalx = (int)Nx/Procx + (int)Nx%Procx;
+            nlocalx = (int)Nx / Procx + (int)Nx%Procx;
 
           }
 	}
@@ -98,25 +94,25 @@ BASE::BASE()
           nlocalx = (int)Nx/Procx;
         }
 
-      if(Ny%Procy!=0)
+      if(Ny % Procy != 0)
 	{
-	  if(coords[1]<(dims[1]-1))
+	  if(coords[1] < (dims[1] - 1))
 	    {
-	      nlocaly = (int)Ny/Procy;
+	      nlocaly = (int)Ny / Procy;
 	    }
 	 else
 	    {
-	      nlocaly = (int)Ny/Procy + (int)Ny%Procy;
+	      nlocaly = (int)Ny / Procy + (int)Ny % Procy;
 	    }
 	 }
       else
 	 {
-             nlocaly = (int)Ny/Procy;
+             nlocaly = (int)Ny / Procy;
 
           }
    
 //----------------------------Calculate the local grid on a process------------------------------------//
-      locala_x = 0.0 + coords[0]*nlocalx*(1.0/Nx); //hx=1.0/Nx, [0.0, 1.0]x[0.0,1.0], global a =0.0, global b =1.0
+      locala_x = 0.0 + coords[0] * nlocalx * (1.0 / Nx); //hx=1.0/Nx, [0.0, 1.0]x[0.0,1.0], global a =0.0, global b =1.0
       //localb_x= 
 
 
@@ -156,13 +152,13 @@ BASE::BASE()
 	    assert(Nparticles==(Nbig + Nsmall));
 	   }
 	   */
-       blocklengths[0]=1;
-       offsets[0]=0;
-       types[0]=MPI_INT;
+       blocklengths[0] = 1;
+       offsets[0] = 0;
+       types[0] = MPI_INT;
        MPI_Type_extent(MPI_INT, &extent);
-       offsets[1]=1*extent;
-       types[1]=MPI_DOUBLE;
-       blocklengths[1]=9;
+       offsets[1] = 1 * extent;
+       types[1] = MPI_DOUBLE;
+       blocklengths[1] = 9;
        MPI_Type_struct(2, blocklengths, offsets, types, &particletype);
        MPI_Type_commit(&particletype);
       /*     nlocal_particles =Nparticles/size;
@@ -192,10 +188,10 @@ BASE::BASE()
          */
   
 
-	   if(Nparticles%size)
+	   if(Nparticles % size)
 	    {
-             nlocal_particles=(my2drank<Nparticles%size)?nlocal_particles +1 : nlocal_particles ;
-	     N_start =N_start - ((my2drank < ((Nparticles)%size) ) ? my2drank : ((Nparticles)%size));
+             nlocal_particles = (my2drank < Nparticles % size) ? nlocal_particles + 1 : nlocal_particles ;
+	     	N_start = N_start - ((my2drank < ((Nparticles) % size) ) ? my2drank : ((Nparticles) % size));
 	    }
 	   //printf("Rank=%d, N_start=%d, nlocalParticles=%d\n",my2drank, N_start,nlocal_particles);
       //     printf("Rank=%d,Nlocalx=%d, Nlocaly=%d, total=%d\n", my2drank, nlocalx,nlocaly,nlocalx*nlocaly);	    
@@ -234,11 +230,11 @@ BASE::BASE()
 	    partitiony[i]=new int[2];
 	 }*/
      
-      Nglobal_startx=3 + (int) Nx/Procx*coords[0]; 
-      Nglobal_endx= Nglobal_startx + nlocalx-1;
+      Nglobal_startx = 3 + (int) Nx / Procx*coords[0]; 
+      Nglobal_endx = Nglobal_startx + nlocalx - 1;
    
-      Nglobal_starty= 3+ (int) Ny/Procy*coords[1];
-      Nglobal_endy=Nglobal_starty + nlocaly-1;
+      Nglobal_starty = 3 + (int) Ny / Procy * coords[1];
+      Nglobal_endy = Nglobal_starty + nlocaly - 1;
       
 /*      partitionx[my2drank][0]=Nglobal_startx;
       partitionx[my2drank][1]=Nglobal_endx;
@@ -255,15 +251,15 @@ BASE::BASE()
 	     }
 	 }*/
   
-      nc1[0]=(int)ceil(nlocalx/RCUT);
-      nc1[1]=(int)ceil(nlocaly/RCUT);
+      nc1[0] = (int)ceil(nlocalx / RCUT);
+      nc1[1] = (int)ceil(nlocaly / RCUT);
       L[0] = (double)nlocalx;
       L[1] = (double)nlocaly;
-      Grid.resize((nc1[0]+2)*(nc1[1]+2)); //+2 ghost cells
-      Grid.resize(nc1[0]+2);
-      for(int i=0;i<(nc1[0]+2);i++)
+      Grid.resize((nc1[0] + 2) * (nc1[1] + 2 ) ); //+2 ghost cells
+      Grid.resize(nc1[0] + 2);
+      for(int i = 0; i < (nc1[0] + 2); i++)
 	 {
-           Grid[i].resize(nc1[1]+2);
+           Grid[i].resize(nc1[1] + 2);
 	 }
       //printf("Rank=%d, (Nglobal_startx =%d, Nglobal_endx=%d)\n", my2drank, Nglobal_startx, Nglobal_endx);
       printf("RCUT=%lf, Number_cells_in_X=%d, Number_cells_in_Y=%d\n",RCUT,nc1[0], nc1[1]);
@@ -312,19 +308,19 @@ BASE::BASE()
           }
       
 
-       for(int i=0;i<nlocalx +6; i++)
+       for(int i = 0;i < nlocalx + 6; i++)
 	   {
-            for(int j=0;j<nlocaly+6;j++)
-	    {
-               PHI[i][j]=0.0;
-	       PHI_old[i][j]=0.0;
-	       CP4[i][j]=0.0;
-	       PP3[i][j]=0.0;
-	       P2[i][j]=0.0;
-	       gamma[i][j]=0.0;
-	       Laplacian2[i][j]=0.0;
-	       PPP[i][j]=0.0;
-	       P3[i][j]=0.0;
+            for(int j = 0;j < nlocaly + 6; j++)
+			{
+				PHI[i][j] = 0.0;
+				PHI_old[i][j] = 0.0;
+	       		CP4[i][j] = 0.0;
+	       		PP3[i][j] = 0.0;
+	       		P2[i][j]  = 0.0;
+	       		gamma[i][j] = 0.0;
+	       		Laplacian2[i][j] = 0.0;
+	       		PPP[i][j] = 0.0;
+	       		P3[i][j] = 0.0;
 
 	    }
 
